@@ -121,166 +121,106 @@ http://127.0.0.1:3100/
 - **Persistent layouts** — your office design is saved and shared across VS Code windows
 - **External asset directories** — load custom or third-party furniture packs from any folder on your machine
 - **Diverse characters** — 6 diverse characters. These are based on the amazing work of [JIK-A-4, Metro City](https://jik-a-4.itch.io/metrocity-free-topdown-character-pack).
-
-<p align="center">
-  <img src="webview-ui/public/characters.png" alt="Pixel Agents characters" width="320" height="72" style="image-rendering: pixelated;">
-</p>
-
-## Requirements
-
-- VS Code 1.105.0 or later
-- [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) installed and configured
-- **Platform**: Windows, Linux, and macOS are supported
-
-## Getting Started
-
-If you just want to use Pixel Agents, the easiest way is to download the [VS Code extension](https://marketplace.visualstudio.com/items?itemName=pablodelucca.pixel-agents). If you want to play with the code, develop, or contribute, then:
-
-### Install from source
-
-```bash
-git clone https://github.com/pixel-agents-hq/pixel-agents.git
-cd pixel-agents
-npm install      # npm workspaces installs root + server + webview-ui in one shot
-npm run build
+3. 전체 아키텍처
+```text
+OpenRouter
+    │
+Driver (Node)
+    │
+Agent Loop
+    │
+Hook API
+    │
+Pixel Agents Server
+    │
+WebView
 ```
-
-Then press **F5** in VS Code to launch the Extension Development Host.
-
-To try the **standalone CLI** locally:
-
-```bash
-node dist/cli.js                 # or npx pixel-agents [--port 3100] after publish
+4. 프로젝트 구조
+```text
+project/
+  README.md
+  core/
+    asyncapi.yaml
+    src/
+      adapter.ts
+      constants.ts
+      index.ts
+      messages.ts
+      normalizeProjectPath.ts
+      provider.ts
+      schemas.ts
+      teamProvider.ts
+      terminalAdapter.ts
+      transport.ts
+      assets/
+  driver/
+    package.json
+    README.md
+    tsconfig.json
+    dist/
+      actions.js
+      agent.js
+      config.js
+      index.js
+      logger.js
+      office.js
+      openrouter.js
+    src/
+      actions.ts
+      agent.ts
+      config.ts
+      index.ts
+      logger.ts
+      office.ts
+      openrouter.ts
+  server/
+    manual-hook-events.http
+    package.json
+    tsconfig.test.json
+    vitest.config.ts
+    __tests__/
+      agentStateStore.test.ts
+      claude-hook.test.ts
+      claude.test.ts
+      claudeHookInstaller.test.ts
+      claudeTeamProvider.test.ts
+      fileStateAdapter.test.ts
+      fileWatcherDismissal.test.ts
+      hookEventHandler.test.ts
+      migrateVsCodeState.test.ts
+      mockClaudeRunner.test.ts
+      server.test.ts
+      sessionRouter.test.ts
+      teamUtils.test.ts
+    src/
+      agentRuntime.ts
+      agentStateStore.ts
+      assetLoader.ts
+      cli.ts
+      clientMessageHandler.ts
+      configPersistence.ts
+      constants.ts
+      dismissalTracker.ts
+      fileStateAdapter.ts
+      fileWatcher.ts
+      hookEventHandler.ts
+      httpServer.ts
+      layoutPersistence.ts
+      server.ts
+      sessionRouter.ts
+      teamUtils.ts
+      timerManager.ts
+      transcriptParser.ts
+      types.ts
+      providers/
 ```
+5. 구현 내용
+신규 Driver
+index.ts : 실행 진입점
+config.ts : 에이전트 설정
+agent.ts : Agent Loop
+office.ts : Hook 전송
+openrouter.ts : OpenRouter 호출
+actions.ts : 행동 매핑
+logger.ts : 한국어 로그
 
-It starts the Fastify server, opens the webview SPA at `http://localhost:3100`, and (in the same `~/.pixel-agents/` namespace) shares your hooks and layout with the VS Code extension if both are running.
-
-### Browser Preview & Hosted Reports
-
-The browser-preview version of the webview can be built and staged for Vercel separately from the VS Code extension build.
-
-```bash
-npm run test
-npm run e2e
-npm run e2e -- --attach-videos-on-success
-npm run vercel:prepare
-```
-
-Run `npm run test:report` separately when you want the combined Allure report locally without preparing the full Vercel output.
-
-The staged Vercel output serves the standalone webview at `/webview/` and the Linux Allure report at `/reports/allure/`, combining the `e2e`, `server`, and `webview` suites. The GitHub Actions deploy job expects `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` secrets.
-
-### Usage
-
-1. Open the **Pixel Agents** panel (it appears in the bottom panel area alongside your terminal)
-2. Click **+ Agent** to spawn a new Claude Code terminal and its character. Right-click for the option to launch with `--dangerously-skip-permissions` (bypasses all tool approval prompts)
-3. Start coding with Claude — watch the character react in real time
-4. Click a character to select it, then click a seat to reassign it
-5. Click **Layout** to open the office editor and customize your space
-
-## Layout Editor
-
-The built-in editor lets you design your office:
-
-- **Floor** — Full HSB color control
-- **Walls** — Auto-tiling walls with color customization
-- **Tools** — Select, paint, erase, place, eyedropper, pick
-- **Undo/Redo** — 50 levels with Ctrl+Z / Ctrl+Y
-- **Export/Import** — Share layouts as JSON files via the Settings modal
-
-The grid is expandable up to 64×64 tiles. Click the ghost border outside the current grid to grow it.
-
-### Office Assets
-
-All office assets (furniture, floors, walls) are now **fully open-source** and included in this repository under `webview-ui/public/assets/`. No external purchases or imports are needed — everything works out of the box.
-
-Each furniture item lives in its own folder under `assets/furniture/` with a `manifest.json` that declares its sprites, rotation groups, state groups (on/off), and animation frames. Floor tiles are individual PNGs in `assets/floors/`, and wall tile sets are in `assets/walls/`. This modular structure makes it easy to add, remove, or modify assets without touching any code.
-
-To add a new furniture item, create a folder in `webview-ui/public/assets/furniture/` with your PNG sprite(s) and a `manifest.json`, then rebuild. The asset manager (`scripts/asset-manager.html`) provides a visual editor for creating and editing manifests.
-
-To use furniture from an external directory, open Settings → **Add Asset Directory**. See [docs/external-assets.md](docs/external-assets.md) for the full manifest format and how to use third-party asset packs.
-
-Characters are based on the amazing work of [JIK-A-4, Metro City](https://jik-a-4.itch.io/metrocity-free-topdown-character-pack).
-
-## How It Works
-
-Pixel Agents has two parallel detection paths:
-
-- **Hooks mode** (preferred) — Claude Code's official Hooks API POSTs events (`SessionStart`, `PreToolUse`, `Notification`, `Stop`, etc.) to a local Fastify server (`POST /api/hooks/:providerId`). Instant, reliable. Server discovery via `~/.pixel-agents/server.json`.
-- **Heuristic mode** (fallback) — Polls JSONL transcript files at `~/.claude/projects/<project-hash>/<session-id>.jsonl`. Used when hooks aren't installed.
-
-A single `HookProvider.normalizeHookEvent(raw)` translates each CLI's hook payload into a canonical `AgentEvent`. The shared `AgentRuntime` dispatches on `AgentEvent.kind`, mutates `AgentStateStore`, and the broadcast layer translates state events into typed `ServerMessage` over the active transport.
-
-The webview runs a lightweight game loop with canvas rendering, BFS pathfinding, and a character state machine (idle → walk → type/read). Everything is pixel-perfect at integer zoom levels. Game state lives in an imperative `OfficeState` class outside React; React components read from it during render but don't own the state.
-
-No modifications to Claude Code are needed — Pixel Agents is purely observational.
-
-## Tech Stack
-
-Four-package monorepo, npm workspaces:
-
-- **`core/`** — TypeScript-only protocol + interfaces (AsyncAPI 3.0 contract, `HookProvider`, `MessageTransport`, `StateAdapter`). Zero runtime side effects.
-- **`server/`** — Fastify v5 (HTTP + WebSocket), Vitest. Owns `AgentRuntime`, `AgentStateStore`, `SessionRouter`, `DismissalTracker`, file watching, transcript parsing, providers. Ships the `npx pixel-agents` CLI.
-- **`adapters/vscode/`** — VS Code Extension API. Composes `core/` + `server/` for the desktop surface.
-- **`webview-ui/`** — React 19, Vite, Canvas 2D. Transport-agnostic (`PostMessageTransport` in VS Code, `WebSocketTransport` in the browser).
-
-Builds: esbuild (extension + CLI + hook scripts), Vite (webview SPA). Tests: Vitest (server + webview unit), Playwright (e2e against real VS Code + standalone Fastify).
-
-## Known Limitations
-
-- **Agent-terminal sync** — the way agents are connected to Claude Code terminal instances is not super robust and sometimes desyncs, especially when terminals are rapidly opened/closed or restored across sessions.
-- **Heuristic-based status detection** — Claude Code's JSONL transcript format does not provide clear signals for when an agent is waiting for user input or when it has finished its turn. The current detection is based on heuristics (idle timers, turn-duration events) and often misfires — agents may briefly show the wrong status or miss transitions.
-- **Linux/macOS tip** — if you launch VS Code without a folder open (e.g. bare `code` command), agents will start in your home directory. This is fully supported; just be aware your Claude sessions will be tracked under `~/.claude/projects/` using your home directory as the project root.
-
-## Troubleshooting
-
-If your agent appears stuck on idle or doesn't spawn:
-
-1. **Debug View** — In the Pixel Agents panel, click the gear icon (Settings), then toggle **Debug View**. This shows connection diagnostics per agent: JSONL file status, lines parsed, last data timestamp, and file path. If you see "JSONL not found", the extension can't locate the session file.
-2. **Debug Console** — If you're running from source (Extension Development Host via F5), open VS Code's **View > Debug Console**. Search for `[Pixel Agents]` to see detailed logs: project directory resolution, JSONL polling status, path encoding mismatches, and unrecognized JSONL record types.
-
-## Where This Is Going
-
-The long-term vision is an interface where managing AI agents feels like playing the Sims, but the results are real things built.
-
-- **Agents as characters** you can see, assign, monitor, and redirect, each with visible roles (designer, coder, writer, reviewer), stats, context usage, and tools.
-- **Desks as directories** — drag an agent to a desk to assign it to a project or working directory.
-- **An office as a project** — with a Kanban board on the wall where idle agents can pick up tasks autonomously.
-- **Deep inspection** — click any agent to see its model, branch, system prompt, and full work history. Interrupt it, chat with it, or redirect it.
-- **Token health bars** — rate limits and context windows visualized as in-game stats.
-- **Fully customizable** — upload your own character sprites, themes, and office assets. Eventually maybe even move beyond pixel art into 3D or VR.
-
-For this to work, the architecture needs to be modular at every level:
-
-- **Platform-agnostic**: VS Code extension today, Electron app, web app, or any other host environment tomorrow.
-- **Agent-agnostic**: Claude Code today, but built to support Codex, OpenCode, Gemini, Cursor, Copilot, and others through composable adapters.
-- **Theme-agnostic**: community-created assets, skins, and themes from any contributor.
-
-We're actively working on the core module and adapter architecture that makes this possible. If you're interested to talk about this further, please visit our [Discussions Section](https://github.com/pixel-agents-hq/pixel-agents/discussions).
-
-## Community & Contributing
-
-Use **[Issues](https://github.com/pixel-agents-hq/pixel-agents/issues)** to report bugs or request features. Join **[Discussions](https://github.com/pixel-agents-hq/pixel-agents/discussions)** for questions and conversations.
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for instructions on how to contribute.
-
-Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before participating.
-
-## Supporting the Project
-
-If you find Pixel Agents useful, consider supporting its development:
-
-<a href="https://github.com/sponsors/pablodelucca">
-  <img src="https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?logo=github" alt="GitHub Sponsors">
-</a>
-<a href="https://ko-fi.com/pablodelucca">
-  <img src="https://img.shields.io/badge/Support-Ko--fi-ff5e5b?logo=ko-fi" alt="Ko-fi">
-</a>
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=pixel-agents-hq/pixel-agents&type=Date)](https://www.star-history.com/?repos=pixel-agents-hq%2Fpixel-agents&type=date&legend=bottom-right)
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
