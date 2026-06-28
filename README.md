@@ -73,6 +73,7 @@
 5. 대화 패널에 사용자 입력과 에이전트 응답 표시
 6. 픽셀 오피스 화면 위에 에이전트 상태와 말풍선 표시
 7. 디버그 화면에서도 에이전트 대화/상태 메시지 확인 가능
+<img width="1663" height="693" alt="image" src="https://github.com/user-attachments/assets/3e46ed1c-fcd3-4b1c-aa67-a036bfebd75f" />
 
 ### 실행 방법
 
