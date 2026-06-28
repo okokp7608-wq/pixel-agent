@@ -223,4 +223,23 @@ office.ts : Hook 전송
 openrouter.ts : OpenRouter 호출
 actions.ts : 행동 매핑
 logger.ts : 한국어 로그
-
+### 수정 사항
+Driver 폴더 신규 추가
+OpenRouter API 연동
+Hook 기반 행동 처리
+Action 매핑 구현
+한국어 로그 추가
+### 실행 방법
+```bash
+npm install
+npm run build
+npx pixel-agents
+node driver/dist/index.js
+```
+### 향후 개선
+Provider 승격
+JSONL 의존 제거
+실제 파일 편집 Tool 연결
+협업형 Multi-Agent 지원
+10. 결론
+기존 Pixel Agents의 렌더링 및 서버 구조를 유지하면서 OpenRouter 기반의 독립적인 Driver를 추가하여 Multi-Agent 환경을 구현하는 것을 목표로 하였으며, 확장 가능한 구조를 확보하였다.
