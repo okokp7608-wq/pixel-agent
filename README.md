@@ -121,7 +121,7 @@ http://127.0.0.1:3100/
 - **Persistent layouts** — your office design is saved and shared across VS Code windows
 - **External asset directories** — load custom or third-party furniture packs from any folder on your machine
 - **Diverse characters** — 6 diverse characters. These are based on the amazing work of [JIK-A-4, Metro City](https://jik-a-4.itch.io/metrocity-free-topdown-character-pack).
-3. 전체 아키텍처
+### 전체 아키텍처
 ```text
 OpenRouter
     │
@@ -134,8 +134,8 @@ Hook API
 Pixel Agents Server
     │
 WebView
-```
-4. 프로젝트 구조
+``
+###  프로젝트 구조
 ```text
 project/
   README.md
@@ -214,7 +214,7 @@ project/
       types.ts
       providers/
 ```
-5. 구현 내용
+### 구현 내용
 신규 Driver
 index.ts : 실행 진입점
 config.ts : 에이전트 설정
